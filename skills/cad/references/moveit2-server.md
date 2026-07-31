@@ -10,7 +10,7 @@ scripts/moveit2_server/check-moveit2-server.sh
 scripts/moveit2_server/run-moveit2-server.sh
 ```
 
-Run these commands from the `cad-explorer` skill directory. The server defaults to:
+Run these commands from the `cad` skill directory (this skill). The server defaults to:
 
 ```text
 127.0.0.1:8765

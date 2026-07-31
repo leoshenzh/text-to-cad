@@ -1,58 +1,67 @@
 ---
 name: cad
-description: Create, modify, inspect, and validate STEP-first build123d/Python CAD parts and assemblies. Use for natural-language CAD specs, STEP/STP generation, build123d source, build123d source-level joints, @cad references, geometry facts, measurements, mating deltas, handoffs to CAD Explorer, conditional review renders, and secondary DXF/STL/3MF outputs.
+description: >
+  Unified CAD skill (建模 + 预览 + 读DWG). Trigger when user says any of:
+  建模, 做零件, 改零件, 改STEP, 出STEP, 生成STEP, 测量装配, 配合检查, 做装配;
+  打开预览, 看模型, 看STEP, CAD Explorer, Explorer, 打开Explorer, 预览STEP;
+  读DWG, 转换DWG, 图纸转PDF, DWG转PDF, DWG转SVG, 报价读图, 客户图纸;
+  create STEP, modify STEP, build123d, open explorer, view STEP, convert DWG,
+  DWG to PDF, measure assembly, mate check, CAD review link.
+  Do NOT use for pure render art, CAM, FEA certification, BIM, or robot file generation
+  (those stay in urdf/srdf/sdf skills — this skill only views them).
 ---
 
-# CAD generation, inspection, and validation
+# CAD — 建模 / 看图 / 读DWG（唯一入口）
 
-## Purpose
+Explorer 已并入本 skill（`scripts/explorer`）。**不要再加载 `cad-explorer`**——该 skill 已删除。
 
-Create or modify parametric CAD models from natural-language requirements, generate validated STEP/STP artifacts, inspect geometry references, and return checked outputs. Treat STEP as the primary CAD artifact. Treat DXF, STL, 3MF, and native GLB as secondary workflows that branch from, or accompany, a STEP-first process. For assemblies, prefer source-level build123d joints and named mating datums when the parts have functional assembly relationships.
+## 1. 触发词 / When to use
 
-## Use this skill when
+### 必须加载本 skill（任意一条命中即可）
 
-Use this skill when the user asks for CAD files, STEP/STP files, build123d source, `@cad[...]` references, mechanical parts, assemblies, enclosures, brackets, fixtures, holes, counterbores, countersinks, slots, pockets, bosses, standoffs, ribs, fillets, chamfers, shells, source-level joints, mating, or measurements.
+**建模 / 改模型**
 
-Also use it when the user asks for DXF, STL, 3MF, or native GLB output from CAD geometry. Keep those workflows secondary and load `dxf.md` or `supported-exports.md` for details.
+- 建模、做零件、改零件、做装配、改装配
+- 出 STEP、改 STEP、生成 STEP、导出 STEP/STP
+- 测量装配、配合检查、对位、量尺寸、检查干涉
+- `@cad`、build123d、parametric part/assembly
+- create/modify STEP, measure assembly, mate check
 
-Do not use this skill for render-only concept art, CAM toolpaths, engineering certification, FEA conclusions, architectural BIM, or freehand illustration unless the user also needs CAD geometry.
+**看图 / 预览（CAD Explorer）**
 
-## Default assumptions
+- 打开预览、看模型、看 STEP、预览 STL/DXF
+- CAD Explorer、Explorer、打开 Explorer、出预览链接
+- open explorer, view STEP, CAD review link, preview model
 
-Use these defaults unless the user specifies otherwise:
+**读 DWG / 报价读图**
 
-- Units: millimeters.
-- Origin: center of the main part or assembly unless a mating interface or fixed root component suggests a better origin.
-- Base plane: XY.
-- Up/extrusion axis: positive Z.
-- Output geometry: closed, positive-volume solids unless the user requests surfaces or construction geometry.
-- STEP structure: one valid solid, a compound of solids, or a labeled assembly compound.
-- Assembly structure: fixed root part, part-local frames, named mating datums, build123d joints where applicable, and explicit generated placements.
-- Small plastic enclosure wall: 2.0-3.0 mm when unspecified.
-- Cosmetic fillet: 1.0-3.0 mm when safe for local geometry.
-- M3/M4/M5 normal clearance holes: 3.4/4.5/5.5 mm unless another standard is requested.
+- 读 DWG、转换 DWG、图纸转 PDF、DWG 转 PDF/SVG/CSV
+- 报价读图、客户图纸、看图纸
+- convert DWG, DWG to PDF/SVG/CSV, quote drawing intake
 
-Ask one focused clarification question only when missing information makes the model impossible, fit-critical, safety-critical, or compliance-bound. Otherwise proceed with explicit assumptions.
+### 不要用本 skill
 
-## Natural-language specs only
+- 纯概念渲染 / 插画（无 CAD 几何需求）
+- CAM 刀路、工程认证结论、FEA 结论、建筑 BIM
+- **生成** URDF / SRDF / SDF（用 `$urdf` / `$srdf` / `$sdf`）；本 skill 只负责在 Explorer 里**查看**这些文件
+- SendCutSend / 钣金报价专用流程（用 `$sendcutsend`），除非同时需要 STEP 建模或 Explorer
+- 已删除的 `cad-explorer` skill——不要再找、不要再 symlink
 
-Do not ask the user to provide a JSON specification and do not make JSON the user-facing workflow. Convert the user's prose into an internal CAD brief with dimensions, features, assumptions, output paths, and validation criteria. Use `references/natural-language-specs.md` for brief-writing patterns.
+## 2. 三条路径
 
-## Root model
+| 路径 | 何时用 | 第一条命令（相对本 skill 目录） |
+|------|--------|--------------------------------|
+| **建模** | 新建/改零件装配、出 STEP、测量配合 | `python scripts/step ...` |
+| **看图** | 打开已有 STEP/STL/DXF/URDF 等预览 | `npm --prefix scripts/explorer run dev:ensure -- --file <path>` |
+| **读DWG** | 客户/报价 `.dwg` → PDF/SVG/CSV | Studio 绝对路径见下表 DWG 节（经 mini QCAD） |
 
-Keep these roots separate:
+可串联：建模生成 STEP 后 → 看图出预览链接。先判定走哪条，再执行。
 
-- **CAD skill directory**: this folder. Tool launchers live here as `scripts/step`, `scripts/inspect`, `scripts/render`, and `scripts/dxf`.
-- **Tool process cwd**: relative CAD targets are resolved from the command's current working directory. Use absolute target paths when running from the skill directory, or run from the workspace root and invoke the launchers with a path to this skill directory.
-- **CAD Explorer**: this skill does not own Explorer startup. After creating or modifying supported artifacts, hand off explicit paths to `$cad-explorer` when that skill is available.
+## 3. Path Modeling（建模）
 
-Short command examples in this skill use launcher paths relative to the CAD skill directory. Adapt the launcher path or target path so project CAD files resolve from the intended workspace, not accidentally under the skill directory.
+### 工具
 
-Prefer keeping a STEP output and its Python generator in the same directory so the source stays easy to discover. Unless the user explicitly requests otherwise, keep the STEP basename and generator basename the same even when they cannot live side by side.
-
-## Available tools
-
-From the CAD skill directory, the launcher shape is:
+在本 skill 目录下：
 
 ```bash
 python scripts/step ...
@@ -61,46 +70,136 @@ python scripts/render ...
 python scripts/dxf ...
 ```
 
-Use the active project Python interpreter. If only the repo-local virtualenv is available, invoke that interpreter while keeping the root model above explicit.
+`python scripts/<tool> --help` 看参数。用当前项目的 Python；**Mac mini 上必须** `/opt/homebrew/opt/python@3.12/bin/python3.12`（不要裸 `python3`）。
 
-Use `python scripts/<tool> --help` for the complete current command interface; reference docs show recommended workflows, not every flag.
+### 默认假设
 
-## Required workflow
+未特别说明时：单位 mm；原点在主体中心（配合面另议）；基面 XY，挤出 +Z；输出封闭实体；STEP 为单实体或带标签装配；薄壁塑料约 2–3 mm；圆角约 1–3 mm；M3/M4/M5 通孔 3.4 / 4.5 / 5.5 mm。缺关键信息才问一句，否则写明假设后继续。
 
-1. **Classify the task.** Identify whether this is a new part, new assembly, source modification, direct STEP/STP inspection, reference selection, measurement/mating check, render review, or secondary output request.
-2. **Load only the needed references.** Use the triggers below instead of reading the whole reference set.
-3. **Create a natural-language CAD brief.** Extract dimensions, units, coordinate convention, feature intent, output paths, assumptions, and validation targets.
-4. **Plan before coding.** Define parameters, labels, source paths, expected bounding boxes, and any mating/positioning datums before editing.
-5. **Edit source, not generated artifacts.** Prefer build123d Python with `gen_step()` for STEP generation.
-6. **Generate explicit targets.** Use `scripts/step` for STEP/STP generation and sidecars. Use `--kind part` or `--kind assembly` only for direct STEP/STP imports. Only ever use `--skip-explorer` when the user explicitly asks to skip Explorer, GLB/topology, or renderable topology output. Do not run directory-wide generation.
-7. **Validate geometrically.** Use `scripts/inspect refs --facts --planes --positioning`, then targeted `measure`, `mate`, `frame`, or `diff` when needed.
-8. **Hand off to CAD Explorer.** Always pass created or modified `.step`, `.stp`, `.stl`, `.3mf`, or `.dxf` paths to `$cad-explorer` for GUI rendering/link review when that skill is available.
-9. **Render images conditionally.** Use `scripts/render` only when requested, `$cad-explorer` is unavailable, visual ambiguity remains, or section/wireframe review answers a real validation question.
-10. **Repair and rerun.** If a check fails, change the smallest responsible source section, regenerate, and rerun the failed validation.
+自然语言规格即可，不要向用户要 JSON。见 `references/natural-language-specs.md`。
 
-## Non-negotiables
+### 必做流程
 
-- Treat generated STEP/STP, STL, 3MF, GLB/topology, DXF outputs, and Explorer sidecars as derived artifacts.
-- Keep STEP as the primary validated CAD artifact; DXF/STL/3MF are secondary unless the user explicitly says otherwise.
-- When a Python generator exists, run `scripts/step` on the generator. Use a direct STEP/STP target only when the generator is unavailable or the user explicitly identifies that STEP/STP file as the target.
-- Use named parameters, closed solids, explicit labels, and source-controlled geometry intent.
-- Author assembly positioning in source with part-local datums, explicit `Location` transforms, or build123d joints. Treat CLI `inspect mate` as read-only validation, not as a source-editing API.
-- Do not use `git status`, `git diff`, or file-size churn as CAD comparison for large exported STEP/STP, GLB/topology, STL, 3MF, or DXF artifacts. Compare source changes, `scripts/inspect` summaries, targeted renders, or CAD Explorer output instead; use path-limited git status only for bookkeeping.
-- Always hand off supported created or modified artifacts to `$cad-explorer` for rendering/link review when that skill is available.
-- Report only checks that actually ran or are directly supported by tool output.
-- If `$cad-explorer` is unavailable or fails, say so and rely on CLI inspection for validation.
+1. **分类** — 新零件 / 装配 / 改源码 / 检查 / 测量 / 渲染 / 次要导出
+2. **按需加载 references** — 见文末 Progressive references
+3. **CAD brief** — 尺寸、单位、特征、路径、假设、验收点
+4. **先规划再写码** — 参数、标签、包围盒、配合基准
+5. **只改源码** — build123d Python + `gen_step()`；禁止手改生成的 STEP
+6. **生成** — `scripts/step`；仅直接导入 STEP 时用 `--kind part|assembly`；仅用户明确跳过预览时加 `--skip-explorer`
+7. **校验** — `scripts/inspect refs --facts --planes --positioning`，再按需 `measure` / `mate` / `frame` / `diff`
+8. **看图** — 生成或改过 `.step/.stp/.stl/.3mf/.dxf` 后，除非用户跳过，走 Path Explorer
+9. **渲染** — 仅用户要求、Explorer 不可用、或视觉仍不清时用 `scripts/render`
+10. **修复环** — 最小源码改动 → 再生成 → 重跑失败项
 
-## Progressive references
+### 硬规矩
 
-Load these files only when their trigger applies:
+- STEP/STL/3MF/GLB/DXF 与 Explorer 附属文件都是派生产物；有 Python 生成器时必须跑 `scripts/step`
+- 装配位姿在源码里做；`inspect mate` 只做校验
+- 不要对大二进制用 `git diff` 比几何
+- 只汇报实际跑过的检查
 
-- `references/natural-language-specs.md` — converting prose requirements into a CAD brief without requiring user JSON.
-- `references/step-generation.md` — STEP generation, direct STEP/STP targets, part-vs-assembly behavior, and post-generation inspection.
-- `references/inspection-and-validation.md` — validation gates, `@cad[...]` refs, facts, planes, topology, measurements, mating, diff, frame, and final validation reporting.
-- `references/positioning.md` — part-local datums, assembly transforms, build123d joints, CLI mate validation, and positioning reports.
-- `references/dxf.md` — secondary DXF workflow.
-- `references/supported-exports.md` — secondary STL/3MF/native GLB sidecar workflows.
-- `references/build123d-modeling.md` — build123d modeling patterns, topology, selectors, features, assemblies.
-- `references/repair-loop.md` — diagnosis and repair procedures.
+## 4. Path Explorer（看图）
 
-Final responses should include generated files, CAD Explorer links when `$cad-explorer` is available, validation actually run, assumptions, and caveats. Use `references/inspection-and-validation.md` for report structure.
+所有 Explorer 路径相对**本 skill 目录**的 `scripts/explorer`（**禁止** `../cad-explorer`）。
+
+**支持：** `.step` `.stp` `.stl` `.3mf` `.dxf` `.urdf` `.srdf` `.sdf`  
+输入必须是已存在的明确路径。
+
+### 启动预览
+
+```bash
+npm --prefix scripts/explorer run dev:ensure -- --file path/to/model.step
+```
+
+带工作区根：
+
+```bash
+npm --prefix scripts/explorer run dev:ensure -- \
+  --workspace-root /path/to/workspace \
+  --file path/to/model.step
+```
+
+前台 Vite（仅手动调试）：
+
+```bash
+npm --prefix scripts/explorer run dev
+```
+
+`dev:ensure` 会复用已有匹配扫描根的本地服务，或在空闲端口起 Vite。**把打印出的 URL 回给用户。**
+
+启动失败：如实报告，继续用 CLI inspect / 非 GUI 校验。
+
+### MoveIt2（SRDF 交互）
+
+仅当用户需要交互式 IK/路径规划时启动——普通预览链接不需要。
+
+在本 skill 目录：
+
+```bash
+scripts/moveit2_server/setup.sh
+scripts/moveit2_server/check-moveit2-server.sh
+scripts/moveit2_server/run-moveit2-server.sh
+```
+
+Default WebSocket: `ws://127.0.0.1:8765/ws`。可用 `EXPLORER_MOVEIT2_WS_URL` 或浏览器 `?moveit2Ws=`。详情：`references/moveit2-server.md`。
+
+### 环境变量
+
+```text
+EXPLORER_PORT
+EXPLORER_PORT_END
+EXPLORER_ROOT_DIR
+EXPLORER_DEFAULT_FILE
+EXPLORER_WORKSPACE_ROOT
+EXPLORER_GITHUB_URL
+EXPLORER_MOVEIT2_WS_URL
+```
+
+优先 `dev:ensure`；除非用户要求，不要停掉已有 Explorer。
+
+## 5. Path DWG（读图）
+
+任何 `.dwg`（报价图、客户 CAD、BOM 附件）：**一律经 Mac mini 上的 QCAD 转换**。  
+**禁止在 Mac Studio 本机跑 QCAD。**
+
+Studio 绝对路径：
+
+```bash
+/Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2pdf  INPUT.dwg [OUTPUT.pdf]
+/Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2svg  INPUT.dwg [OUTPUT.svg]
+/Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2csv  INPUT.dwg [OUTPUT.csv]
+```
+
+- 省略 `OUTPUT` → 当前目录同名 `.pdf` / `.svg` / `.csv`
+- 脚本 SCP 到 mini `/tmp/fadior-mini-qcad-<pid>/`，跑 QCAD，拉回结果并清理
+- SSH 主机：`FADIOR_MINI_QCAD_HOST`（默认 `mac-mini`）
+- QCAD Pro 试用启动约 15 秒属正常
+
+策略全文：`.../quote-tool/docs/dwg-mini-qcad.md`
+
+## 6. Mac Studio vs Mac mini
+
+| 能力 | Mac Studio | Mac mini |
+|------|------------|----------|
+| 建模（build123d / `scripts/step`） | 是（默认） | **否**，直到为 `/opt/homebrew/opt/python@3.12/bin/python3.12` 装好 `build123d` |
+| CAD Explorer（`dev:ensure`） | 是 | 是（同步 skill 后；必要时在 `scripts/explorer` 里 `npm install`） |
+| DWG → PDF/SVG/CSV | 是（SSH 调 mini QCAD） | QCAD 在 mini 本机跑 |
+| Python | 项目解释器即可 | **必须** `/opt/homebrew/opt/python@3.12/bin/python3.12` |
+
+mini 上若 `import build123d` 失败，不要声称能建模。
+
+## 7. Progressive references
+
+按需加载，不要一次全读：
+
+- `references/natural-language-specs.md` — 白话 → CAD brief
+- `references/step-generation.md` — STEP 生成与生成后检查
+- `references/inspection-and-validation.md` — refs / facts / planes / measure / mate / diff
+- `references/positioning.md` — 基准、关节、装配变换
+- `references/dxf.md` — 次要 DXF
+- `references/supported-exports.md` — STL/3MF/GLB
+- `references/build123d-modeling.md` — build123d 模式
+- `references/repair-loop.md` — 诊断与修复
+- `references/moveit2-server.md` — Explorer MoveIt2 服务
+
+最终回复：生成文件、跑过的 Explorer URL、实际校验、假设与限制。汇报结构见 `references/inspection-and-validation.md`。
