@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+FADIOR_CAD_NPM="/opt/homebrew/bin/npm"
+
+if [ ! -x "${FADIOR_CAD_NPM}" ]; then
+  echo "Mac mini Homebrew npm is missing: ${FADIOR_CAD_NPM}" >&2
+  exit 1
+fi
+
+PATH="/opt/homebrew/bin:/usr/bin:/bin" exec "${FADIOR_CAD_NPM}" "$@"

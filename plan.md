@@ -4,7 +4,8 @@
 
 Maintain Leo's six installed CAD skills from one governed repository, with CAD
 generation, Explorer preview, and DWG intake exposed through the single `cad`
-entry point.
+entry point. All CAD execution runs on Mac mini; Studio only orchestrates,
+transfers inputs, and retrieves results.
 
 ## Authority and branches
 
@@ -37,6 +38,8 @@ entry point.
 - [x] Move the canonical checkout out of the Claude scan tree and relink both
   agents.
 - [x] Verify both agent startup inventories and all six runtime skill links.
+- [x] Install and validate the complete modeling and Explorer runtime on Mac mini.
+- [x] Document Mac mini as the only CAD execution host and Studio as orchestration only.
 
 ## Verification snapshot
 
@@ -58,15 +61,24 @@ entry point.
   one-page, 3,036-byte PDF with QCAD 3.32.9 on mini.
 - The old `Fadiorteam/projects/tools/quote-tool/` path was removed during the
   2026-08-13 ProductSystem migration and must not be used.
-- Modeling is not currently runnable on Studio or mini because the required
-  `build123d` / `OCP` environment is absent. Explorer source is present, but
-  its runtime dependencies are absent on both machines. Skill presence and
-  source synchronization are therefore not evidence that those two paths run.
+- Mac mini is the only CAD execution host. Its isolated Python runtime now has
+  build123d 0.11.1, OCP 7.9.3.1.1, VTK 9.7.0, and the remaining declared CAD
+  requirements. A representative labeled part generated and inspected as one
+  solid with an 80 × 50 × 6 mm bounding box.
+- Mac mini Explorer now has its locked runtime dependencies. The full suite
+  passes 147/147 tests, the production build passes with an explicit workspace
+  root, `dev:ensure` serves the representative STEP and catalog, and `npm audit`
+  reports zero known vulnerabilities after refreshing the package lock.
+- Studio intentionally has no CAD modeling or Explorer dependency environment.
+  Its installed Skill describes how to send work to mini and retrieve results;
+  Skill visibility is not local runtime availability.
+- Installed mini footprint at acceptance: Python runtime 1.3 GB and Explorer
+  dependencies 148 MB. Download caches were retained (pip 421 MB, npm 469 MB).
 
 ## Constraints and risks
 
-- Do not install CAD or Explorer dependencies without separate approval if the
-  download may exceed 30 MB.
+- Reinstalling CAD or Explorer dependencies may exceed 30 MB and still requires
+  separate approval. The 2026-08-27 installation was explicitly authorized.
 - The CAD skill must use the ProductSystem DWG bridge and fail closed rather
   than borrowing an obsolete Fadiorteam path or a temporary worktree copy.
 - Keep the fork's `main` on the latest upstream history.
