@@ -1,6 +1,6 @@
 ---
 name: urdf
-description: URDF robot description generation and default generation-time validation. Use when creating, editing, regenerating, inspecting, or debugging `.urdf` files, Python `gen_urdf()` sources, robot links, joints, limits, inertials, visual/collision geometry, mesh references, frame conventions, or generated robot-description artifacts. Use the SRDF skill for MoveIt2 semantic groups and IK/path-planning semantics; use the CAD Explorer skill for local MoveIt2 server controls; use the CAD skill for STEP/STL/3MF/DXF/GLB outputs.
+description: URDF robot description generation and default generation-time validation. Use when creating, editing, regenerating, inspecting, or debugging `.urdf` files, Python `gen_urdf()` sources, robot links, joints, limits, inertials, visual/collision geometry, mesh references, frame conventions, or generated robot-description artifacts. Use the SRDF skill for MoveIt2 semantic groups and IK/path-planning semantics; use the CAD skill for Explorer review, local MoveIt2 server controls, and STEP/STL/3MF/DXF/GLB outputs.
 ---
 
 # URDF
@@ -27,7 +27,7 @@ Use this skill for URDF robot-description outputs. Treat URDF work as constraine
 5. Regenerate only explicit targets with `scripts/urdf`.
 6. Let generation-time validation fail fast on XML, graph, joint, geometry, mesh-reference, and inertial problems.
 7. When geometry or mesh references depend on changed CAD or exported mesh outputs, regenerate those explicit artifacts with the owning CAD or mesh workflow, then regenerate the affected URDF target.
-8. After creating or modifying a `.urdf`, always hand the explicit generated path to `$cad-explorer` for rendering/link review when that skill is available.
+8. After creating or modifying a `.urdf`, always hand the explicit generated path to `$cad` for its built-in Explorer rendering/link review when that skill is available.
 9. When available, run a consumer smoke test appropriate to the target: RViz display, robot_state_publisher tree, Gazebo/Ignition loading, or MoveIt model loading.
 10. Report remaining assumptions, unchecked spatial data, and validation/smoke-test gaps.
 

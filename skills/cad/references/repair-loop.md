@@ -140,7 +140,7 @@ Likely causes:
 
 Fix:
 
-- hand the explicit artifact path to `$cad-explorer`
+- open the explicit artifact path with this skill's Path Explorer
 - check `EXPLORER_ROOT_DIR` when available
 - return the best documented link format
 - report startup failure if unresolved

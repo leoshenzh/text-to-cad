@@ -12,8 +12,8 @@ Do not duplicate reusable skill methodology in this file. Skill location and
 packaging may vary by agent; rely on the active agent's skill-discovery
 mechanism.
 
-If you are modifying CAD Explorer itself, use the CAD Explorer documentation
-provided with the CAD Explorer skill or local project documentation.
+If you are modifying CAD Explorer itself, use the Explorer documentation
+provided with the CAD skill or local project documentation.
 
 ## Harness context
 

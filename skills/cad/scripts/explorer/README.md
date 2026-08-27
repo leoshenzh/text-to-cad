@@ -71,7 +71,7 @@ Do not hand-edit package-local generated CAD assets during normal CAD or CAD Exp
 - `EXPLORER_GITHUB_URL` sets the top-bar GitHub button target and defaults to `https://github.com/earthtojake/text-to-cad`.
 - URDF files render as direct robot entries with joints and animation. SDF files render as direct model-level robot entries with joints and animation. SRDF files render as separate entries that load their linked URDF through `<explorer:urdf path="..."/>`, expose SRDF `<group_state>` presets, and expose MoveIt2 controls. Vite never starts Python or ROS.
 - In local Vite dev, the browser connects to `EXPLORER_MOVEIT2_WS_URL` when set, otherwise `ws://127.0.0.1:8765/ws`; `?moveit2Ws=` can override the websocket URL for a single browser session. Production builds disable MoveIt2 server connections.
-- Start the MoveIt2 server with the CAD Explorer skill's `scripts/moveit2_server/run-moveit2-server.sh`. Plain URDF and SDF entries never contact the MoveIt2 server.
+- Start the MoveIt2 server with the CAD skill's `scripts/moveit2_server/run-moveit2-server.sh`. Plain URDF and SDF entries never contact the MoveIt2 server.
 - `npm run build` scans `EXPLORER_ROOT_DIR`, defaulting to the inferred workspace root when unset or empty, and bakes that scan into the static app.
 - Production builds read `EXPLORER_DEFAULT_FILE`, `EXPLORER_GITHUB_URL`, `EXPLORER_ROOT_DIR`, and `EXPLORER_WORKSPACE_ROOT` at build time. If the build command runs from `explorer`, CAD Explorer falls back to the containing workspace root; set `EXPLORER_WORKSPACE_ROOT=/path/to/workspace` explicitly when your deployment builds from a different directory layout.
 - Regenerate CAD assets outside the CAD Explorer package before these commands when CAD assets need to change.
@@ -95,15 +95,15 @@ Do not hand-edit package-local generated CAD assets during normal CAD or CAD Exp
 
 ## Verification For CAD Explorer Changes
 
-- For pure CAD Explorer changes, run `npm --prefix scripts/explorer run test` and `npm --prefix scripts/explorer run build` from the CAD Explorer skill directory.
+- For pure CAD Explorer changes, run `npm --prefix scripts/explorer run test` and `npm --prefix scripts/explorer run build` from the CAD skill directory.
 - Run `npm --prefix scripts/explorer run test` when the change touches explorer logic, parsing, persistence, catalog scanning, selectors, or kinematics.
-- Run `EXPLORER_WORKSPACE_ROOT=/path/to/workspace npm --prefix scripts/explorer run build` from the CAD Explorer skill directory when you need the normal production `dist/` output for another workspace. Set `EXPLORER_ROOT_DIR=...` when the scan should be limited to a workspace subdirectory.
+- Run `EXPLORER_WORKSPACE_ROOT=/path/to/workspace npm --prefix scripts/explorer run build` from the CAD skill directory when you need the normal production `dist/` output for another workspace. Set `EXPLORER_ROOT_DIR=...` when the scan should be limited to a workspace subdirectory.
 - If the change depends on fresh CAD-derived assets, regenerate the affected entries separately with the CAD skill's `scripts/step` or `scripts/dxf`, the URDF skill's `scripts/urdf`, the SRDF skill's `scripts/srdf`, or the SDF skill's `scripts/sdf` before explorer verification.
 - For render-contract changes, inspect the relevant package-local `.<step-filename>.glb`, visible `.stl`, visible `.3mf`, visible `.dxf`, visible `.urdf`, visible `.srdf`, or visible `.sdf` files.
 
 ## Run
 
-From the CAD Explorer skill directory:
+From the CAD skill directory:
 
 ```bash
 npm --prefix scripts/explorer install

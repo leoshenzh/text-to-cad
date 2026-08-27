@@ -15,8 +15,8 @@ SRDF is the MoveIt semantic companion to a URDF. Keep physical robot structure, 
 9. Define group states in URDF-native units and check them against URDF limits.
 10. Define disabled collisions only from adjacency, sampling, Setup Assistant output, or explicit user evidence.
 11. Regenerate only the explicit SRDF target with `scripts/srdf`.
-12. Hand generated or modified `.srdf` files to `$cad-explorer` for rendering/link review when available.
-13. Run MoveIt smoke tests when available. Use `$cad-explorer` for local Explorer-based IK or path-planning controls.
+12. Hand generated or modified `.srdf` files to `$cad` for built-in Explorer rendering/link review when available.
+13. Run MoveIt smoke tests when available. Use `$cad` for local Explorer-based IK or path-planning controls.
 14. Report assumptions and skipped checks.
 
 ## Typical SRDF content
@@ -69,8 +69,8 @@ Do not generate broad disabled-collision lists from prose or visual appearance.
 
 ## CAD Explorer handoff and MoveIt2 controls
 
-After creating or modifying generated `.srdf` files, hand the explicit output path to `$cad-explorer` for rendering/link review when that skill is available. SRDF does not own Explorer startup.
+After creating or modifying generated `.srdf` files, hand the explicit output path to `$cad` for built-in Explorer rendering/link review when that skill is available. SRDF does not own Explorer startup.
 
-When the user needs local IK or path-planning controls, include that in the `$cad-explorer` handoff. CAD Explorer owns the local `moveit2_server`, including setup, environment checks, WebSocket URL wiring, and protocol details. Provide the SRDF path plus any known planning group, target/TCP link, target frame, pose, start state, and skipped assumptions.
+When the user needs local IK or path-planning controls, include that in the `$cad` handoff. The CAD skill owns the local `moveit2_server`, including setup, environment checks, WebSocket URL wiring, and protocol details. Provide the SRDF path plus any known planning group, target/TCP link, target frame, pose, start state, and skipped assumptions.
 
 The local server is a smoke-test helper, not a replacement for a full MoveIt configuration package.

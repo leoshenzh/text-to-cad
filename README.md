@@ -30,7 +30,7 @@ A collection of agent skills for CAD, robotics and hardware design
 
 - **Generate** - Create source-controlled CAD models with coding agents like Codex and Claude Code.
 - **Export** - Produce STEP, STL, 3MF, DXF, GLB, topology data, and URDF/SDF/SRDF robot descriptions.
-- **Browse** - Inspect generated geometry, flat patterns, and robot-description files in CAD Explorer.
+- **Browse** - Inspect generated geometry, flat patterns, and robot-description files with the CAD skill's built-in Explorer.
 - **Source** - Find and download off-the-shelf STEP parts from the hosted step.parts catalog.
 - **Reference** - Copy stable `@cad[...]` references so agents can make precise follow-up edits.
 - **Review** - Render quick review images for fast checks during an iteration loop.
@@ -39,9 +39,8 @@ A collection of agent skills for CAD, robotics and hardware design
 
 ## 🧰 Skills
 
-- **CAD Skill** - STEP, STL, 3MF, DXF, GLB/topology, render images, and `@cad[...]` geometry references. [Bundled skill](skills/cad/SKILL.md) · [Standalone repo](https://github.com/earthtojake/cad-skill)
+- **CAD Skill** - STEP, STL, 3MF, DXF, GLB/topology, render images, `@cad[...]` geometry references, and the built-in CAD Explorer. [Bundled skill](skills/cad/SKILL.md) · [Standalone repo](https://github.com/earthtojake/cad-skill)
 - **step.parts Skill** - Find, evaluate, and download common off-the-shelf STEP models from step.parts, including screws, nuts, washers, bearings, standoffs, electronics parts, motors, and connectors. [Bundled skill](skills/step-parts/SKILL.md)
-- **CAD Explorer Skill** - Start or reuse CAD Explorer and return visual review links for generated `.step`, `.stp`, `.stl`, `.3mf`, `.dxf`, `.urdf`, `.srdf`, and `.sdf` files. [Bundled skill](skills/cad-explorer/SKILL.md)
 - **URDF Skill** - Generated URDF XML, robot links, joints, limits, validation, mesh references, and CAD Explorer URDF visualization. [Bundled skill](skills/urdf/SKILL.md)
 - **SDF Skill** - Generated SDFormat/SDF XML, simulator model/world structure, validation, mesh URIs, plugins, and simulator-specific metadata. [Bundled skill](skills/sdf/SKILL.md)
 - **SRDF Skill** - MoveIt2 SRDF semantics, direct SRDF-to-URDF Explorer links, inverse kinematics, path planning, and optional MoveIt2-server testing for existing URDFs. [Bundled skill](skills/srdf/SKILL.md)
@@ -236,16 +235,16 @@ python3.11 -m venv .venv
 ./.venv/bin/pip install -r skills/cad/requirements.txt
 ```
 
-Install CAD Explorer dependencies:
+Install the CAD skill's Explorer dependencies:
 
 ```bash
-npm --prefix skills/cad-explorer/scripts/explorer install
+npm --prefix skills/cad/scripts/explorer install
 ```
 
 Start or reuse CAD Explorer for the current workspace:
 
 ```bash
-npm --prefix skills/cad-explorer/scripts/explorer run dev:ensure -- --workspace-root "$PWD" --root-dir .
+npm --prefix skills/cad/scripts/explorer run dev:ensure -- --workspace-root "$PWD" --root-dir .
 ```
 
 Then open the URL printed by the command.
@@ -253,15 +252,15 @@ Then open the URL printed by the command.
 For a specific file, pass its path explicitly:
 
 ```bash
-npm --prefix skills/cad-explorer/scripts/explorer run dev:ensure -- --workspace-root "$PWD" --root-dir . --file path/to/model.step
+npm --prefix skills/cad/scripts/explorer run dev:ensure -- --workspace-root "$PWD" --root-dir . --file path/to/model.step
 ```
 
-CAD Explorer supports `.step`, `.stp`, `.stl`, `.3mf`, `.dxf`, `.urdf`, `.srdf`, and `.sdf` files. SRDF reviews can use optional local MoveIt2 controls when the CAD Explorer skill's MoveIt2 server is running.
+CAD Explorer supports `.step`, `.stp`, `.stl`, `.3mf`, `.dxf`, `.urdf`, `.srdf`, and `.sdf` files. SRDF reviews can use optional local MoveIt2 controls when the CAD skill's MoveIt2 server is running.
 
 CAD Explorer renders models with browser WebGL. If Chrome shows "WebGL unavailable" or "Error creating WebGL context" on Linux, check `chrome://gpu`, enable hardware acceleration or software WebGL, and update the system graphics/Mesa drivers before reloading the Explorer URL.
 
 For manual foreground Explorer development:
 
 ```bash
-npm --prefix skills/cad-explorer/scripts/explorer run dev
+npm --prefix skills/cad/scripts/explorer run dev
 ```

@@ -45,7 +45,7 @@ Use tighter tolerances for small curved parts or visual fidelity. Use looser tol
 
 1. Generate STEP from `gen_step()` with the requested sidecar flag(s).
 2. Run facts/planes/positioning inspection on the STEP.
-3. Return the STEP, requested sidecar files, and CAD Explorer link from `$cad-explorer` when available.
+3. Return the STEP, requested sidecar files, and link from this skill's Path Explorer when available.
 
 Example:
 

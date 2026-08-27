@@ -45,7 +45,7 @@ For each sensor or plugin:
 
 ### Visual review
 
-When `$cad-explorer` or an equivalent viewer is available, render the generated file or related assets. Visual review is useful but not sufficient: it can catch gross placement and mesh problems, but it cannot prove axis frames, inertials, dynamics, or plugin behavior.
+When `$cad` or an equivalent viewer is available, render the generated file or related assets with its built-in Explorer. Visual review is useful but not sufficient: it can catch gross placement and mesh problems, but it cannot prove axis frames, inertials, dynamics, or plugin behavior.
 
 ## Report format
 

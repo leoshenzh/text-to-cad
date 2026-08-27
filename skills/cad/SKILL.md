@@ -102,7 +102,7 @@ python scripts/dxf ...
 
 所有 Explorer 路径相对**本 skill 目录**的 `scripts/explorer`（**禁止** `../cad-explorer`）。
 
-**支持：** `.step` `.stp` `.stl` `.3mf` `.dxf` `.urdf` `.srdf` `.sdf`  
+**支持：** `.step` `.stp` `.stl` `.3mf` `.dxf` `.urdf` `.srdf` `.sdf`
 输入必须是已存在的明确路径。
 
 ### 启动预览
@@ -159,10 +159,10 @@ EXPLORER_MOVEIT2_WS_URL
 
 ## 5. Path DWG（读图）
 
-任何 `.dwg`（报价图、客户 CAD、BOM 附件）：**一律经 Mac mini 上的 QCAD 转换**。  
+任何 `.dwg`（报价图、客户 CAD、BOM 附件）：**一律经 Mac mini 上的 QCAD 转换**。
 **禁止在 Mac Studio 本机跑 QCAD。**
 
-Studio 绝对路径：
+Studio 权威期望路径：
 
 ```bash
 /Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2pdf  INPUT.dwg [OUTPUT.pdf]
@@ -170,12 +170,14 @@ Studio 绝对路径：
 /Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2csv  INPUT.dwg [OUTPUT.csv]
 ```
 
+- 执行前先用 `test -x` 检查权威脚本；缺失就如实报告 DWG 桥接当前不可用
+- **禁止**借用 `.worktrees/` 里的副本；工作台会被清理，不是运行时真源
 - 省略 `OUTPUT` → 当前目录同名 `.pdf` / `.svg` / `.csv`
 - 脚本 SCP 到 mini `/tmp/fadior-mini-qcad-<pid>/`，跑 QCAD，拉回结果并清理
 - SSH 主机：`FADIOR_MINI_QCAD_HOST`（默认 `mac-mini`）
 - QCAD Pro 试用启动约 15 秒属正常
 
-策略全文：`.../quote-tool/docs/dwg-mini-qcad.md`
+策略全文只从同一权威项目路径读取；文档不存在时不要借用工作台副本。
 
 ## 6. Mac Studio vs Mac mini
 
@@ -183,7 +185,7 @@ Studio 绝对路径：
 |------|------------|----------|
 | 建模（build123d / `scripts/step`） | 是（默认） | **否**，直到为 `/opt/homebrew/opt/python@3.12/bin/python3.12` 装好 `build123d` |
 | CAD Explorer（`dev:ensure`） | 是 | 是（同步 skill 后；必要时在 `scripts/explorer` 里 `npm install`） |
-| DWG → PDF/SVG/CSV | 是（SSH 调 mini QCAD） | QCAD 在 mini 本机跑 |
+| DWG → PDF/SVG/CSV | 仅当权威桥接脚本通过 `test -x` | 由权威桥接脚本调用 mini QCAD |
 | Python | 项目解释器即可 | **必须** `/opt/homebrew/opt/python@3.12/bin/python3.12` |
 
 mini 上若 `import build123d` 失败，不要声称能建模。

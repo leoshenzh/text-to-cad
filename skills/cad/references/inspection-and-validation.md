@@ -44,7 +44,7 @@ Default validation sequence:
 4. `mate` confirms read-only alignment deltas for assembly interfaces or ref-to-ref positioning; it does not create source-level build123d joints.
 5. `frame` confirms world frame for occurrences or selected references.
 6. `diff` compares before/after geometry for modifications.
-7. Created or modified supported artifacts are handed to `$cad-explorer` for human review when available.
+7. Created or modified supported artifacts are opened in this skill's built-in Explorer for human review when available.
 8. `scripts/render` is used only when it answers a validation question or when Explorer is unavailable.
 
 ## Reference discovery
@@ -128,7 +128,7 @@ Use diff when a repair, feature addition, or source edit could affect unrelated 
 
 ## CAD Explorer handoff
 
-For every final response involving a STEP/STP artifact, hand off the explicit artifact path to `$cad-explorer` when available and return the link it prints. If an important selector was inspected, return the textual `@cad[...]` reference beside the owning Explorer link.
+For every final response involving a STEP/STP artifact, open the explicit artifact path with Path Explorer when available and return the link it prints. If an important selector was inspected, return the textual `@cad[...]` reference beside the owning Explorer link.
 
 ## Validation report content
 

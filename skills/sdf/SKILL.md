@@ -25,7 +25,7 @@ Do not use SDF to patch an incorrect URDF unless the task is explicitly simulato
 4. **Read frame semantics before pose edits.** Use `references/frame-semantics.md` for every task involving `<pose>`, `<frame>`, joint axes, `relative_to`, `expressed_in`, or nested scopes.
 5. **Generate only explicit targets.** Use `scripts/sdf` with explicit source files or `SOURCE.py=OUTPUT.sdf` pairs. Generation validates the SDF before writing the output.
 6. **Regenerate upstream assets separately.** `scripts/sdf` does not regenerate CAD, meshes, GLB assets, render outputs, URDF, or SRDF. If SDF mesh references depend on changed assets, regenerate those assets with the owning workflow first.
-7. **Run consumer smoke tests when available.** Use `gz sdf --check`, simulator load, joint-motion checks, plugin/sensor startup checks, or `$cad-explorer` rendering when available. Report checks that were skipped.
+7. **Run consumer smoke tests when available.** Use `gz sdf --check`, simulator load, joint-motion checks, plugin/sensor startup checks, or `$cad` built-in Explorer rendering when available. Report checks that were skipped.
 8. **Report assumptions.** State any guessed transform, axis, scale, mass, inertia, plugin parameter, frame relation, or unresolved URI.
 
 ## Commands

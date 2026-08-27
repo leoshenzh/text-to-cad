@@ -51,9 +51,9 @@ const skillGroups = [
     name: "CAD",
     path: "skills/cad",
     summary:
-      "Builds and edits parametric CAD from natural-language requirements, with STEP as the primary checked output.",
+      "Builds, edits, validates, and previews parametric CAD from natural-language requirements, with STEP as the primary checked output.",
     details:
-      "Use it for mechanical parts, assemblies, fixtures, enclosures, measurements, @cad references, and secondary DXF/STL/3MF/GLB exports.",
+      "Use it for mechanical parts, assemblies, fixtures, enclosures, measurements, @cad references, built-in CAD Explorer review, and secondary DXF/STL/3MF/GLB exports.",
   },
   {
     orbitSrc: "/skill-logos/step-parts-cog-orbit.gif",
@@ -63,15 +63,6 @@ const skillGroups = [
       "Finds and downloads off-the-shelf STEP models from the hosted step.parts catalog.",
     details:
       "Use it for standard screws, nuts, washers, bearings, standoffs, electronics parts, motors, connectors, aliases, dimensions, and checksum-verified downloads.",
-  },
-  {
-    orbitSrc: "/skill-logos/cad-explorer-orbit.gif",
-    name: "CAD Explorer",
-    path: "skills/cad-explorer",
-    summary:
-      "Opens local visual review links for generated CAD and robot-description files.",
-    details:
-      "Use it when you want to inspect STEP, STP, STL, 3MF, DXF, URDF, SRDF, or SDF outputs in the browser.",
   },
   {
     orbitSrc: "/skill-logos/urdf-orbit.gif",
@@ -313,7 +304,7 @@ export default function Home() {
                 "python3.11 -m venv .venv",
                 "./.venv/bin/python -m pip install --upgrade pip",
                 "./.venv/bin/pip install -r skills/cad/requirements.txt",
-                "npm --prefix skills/cad-explorer/scripts/explorer install",
+                "npm --prefix skills/cad/scripts/explorer install",
               ]}
             />
           </section>

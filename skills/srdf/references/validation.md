@@ -30,7 +30,7 @@ The current runtime checks that:
 
 ## Optional CAD Explorer MoveIt2 checks
 
-When `$cad-explorer` starts its local MoveIt2 server for SRDF review, the server additionally checks:
+When `$cad` starts its local MoveIt2 server for SRDF review, the server additionally checks:
 
 - request `protocolVersion`;
 - request type;

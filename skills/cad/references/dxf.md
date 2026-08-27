@@ -35,7 +35,7 @@ def gen_step():
 1. Convert the user's prose into a natural-language CAD brief.
 2. Build or validate the `gen_step()` envelope.
 3. Generate STEP with lightweight facts/planes/positioning inspection.
-4. Hand the generated STEP path to `$cad-explorer` when available and return its link.
+4. Open the generated STEP path with this skill's Path Explorer when available and return its link.
 5. Add or update `gen_dxf()` for the requested projection, layout, or drawing output.
 6. Run `scripts/dxf` on explicit Python source targets.
 7. Report the DXF output plus the primary STEP and Explorer link when available.
