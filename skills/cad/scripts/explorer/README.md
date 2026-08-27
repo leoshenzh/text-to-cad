@@ -1,5 +1,8 @@
 # CAD Explorer
 
+Leo 的安装环境只在 Mac mini 运行本组件；Studio 不安装 Explorer 依赖。固定运行路径、
+命令和恢复方法见 [../../references/mini-runtime.md](../../references/mini-runtime.md)。
+
 If you are modifying CAD Explorer, start here.
 
 This folder contains the CAD Explorer web app. CAD Explorer is read-only with respect to files in the active CAD scan directory.

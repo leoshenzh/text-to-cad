@@ -15,6 +15,11 @@ description: >
 
 Explorer 已并入本 skill（`scripts/explorer`）。**不要再加载 `cad-explorer`**——该 skill 已删除。
 
+**运行架构：全部 CAD 都在 Mac mini 执行。** 建模、STEP 检查、Explorer 预览和
+QCAD 读 DWG 都不在 Mac Studio 本机运行。Studio 只有编排作用：接收任务、把输入交给
+mini、取回结果。固定运行路径、恢复方法和现场验收见
+[references/mini-runtime.md](references/mini-runtime.md)。
+
 ## 1. 触发词 / When to use
 
 ### 必须加载本 skill（任意一条命中即可）
@@ -51,9 +56,9 @@ Explorer 已并入本 skill（`scripts/explorer`）。**不要再加载 `cad-exp
 
 | 路径 | 何时用 | 第一条命令（相对本 skill 目录） |
 |------|--------|--------------------------------|
-| **建模** | 新建/改零件装配、出 STEP、测量配合 | `python scripts/step ...` |
-| **看图** | 打开已有 STEP/STL/DXF/URDF 等预览 | `npm --prefix scripts/explorer run dev:ensure -- --file <path>` |
-| **读DWG** | 客户/报价 `.dwg` → PDF/SVG/CSV | Studio 绝对路径见下表 DWG 节（经 mini QCAD） |
+| **建模** | 新建/改零件装配、出 STEP、测量配合 | mini：`scripts/mini-python scripts/step ...` |
+| **看图** | 打开已有 STEP/STL/DXF/URDF 等预览 | mini：`scripts/mini-npm --prefix scripts/explorer run dev:ensure -- --file <path>` |
+| **读DWG** | 客户/报价 `.dwg` → PDF/SVG/CSV | mini QCAD；Studio 仅可调用下文远程助手 |
 
 可串联：建模生成 STEP 后 → 看图出预览链接。先判定走哪条，再执行。
 
@@ -62,25 +67,29 @@ Explorer 已并入本 skill（`scripts/explorer`）。**不要再加载 `cad-exp
 ### 开工前检查
 
 ```bash
-python -c 'import build123d, OCP; print("CAD_MODELING_READY")'
+scripts/mini-python -c 'import build123d, OCP; print("CAD_MODELING_READY")'
 ```
 
 只有打印 `CAD_MODELING_READY` 才能开始建模。缺少 `build123d` 或 `OCP` 时，
 如实报告当前建模环境不可用；不要把 skill 文件存在误写成建模能力可用，也不要
 未经 Leo 批准下载可能超过 30 MB 的依赖。
 
+该检查和下方工具命令必须在 Mac mini 的本 skill 目录执行。任务从 Studio 发起时，
+通过 `ssh mac-mini` 让 mini 执行；不要在 Studio 另装一套建模环境。
+
 ### 工具
 
 在本 skill 目录下：
 
 ```bash
-python scripts/step ...
-python scripts/inspect ...
-python scripts/render ...
-python scripts/dxf ...
+scripts/mini-python scripts/step ...
+scripts/mini-python scripts/inspect ...
+scripts/mini-python scripts/render ...
+scripts/mini-python scripts/dxf ...
 ```
 
-`python scripts/<tool> --help` 看参数。用当前项目的 Python；**Mac mini 上必须** `/opt/homebrew/opt/python@3.12/bin/python3.12`（不要裸 `python3`）。
+`scripts/mini-python scripts/<tool> --help` 看参数。`mini-python` 固定调用 mini 的
+Homebrew Python 3.12，并加载独立 CAD 依赖目录；不要改成裸 `python` / `python3`。
 
 ### 默认假设
 
@@ -128,13 +137,13 @@ test -d scripts/explorer/node_modules
 ### 启动预览
 
 ```bash
-npm --prefix scripts/explorer run dev:ensure -- --file path/to/model.step
+scripts/mini-npm --prefix scripts/explorer run dev:ensure -- --file path/to/model.step
 ```
 
 带工作区根：
 
 ```bash
-npm --prefix scripts/explorer run dev:ensure -- \
+scripts/mini-npm --prefix scripts/explorer run dev:ensure -- \
   --workspace-root /path/to/workspace \
   --file path/to/model.step
 ```
@@ -142,7 +151,7 @@ npm --prefix scripts/explorer run dev:ensure -- \
 前台 Vite（仅手动调试）：
 
 ```bash
-npm --prefix scripts/explorer run dev
+scripts/mini-npm --prefix scripts/explorer run dev
 ```
 
 `dev:ensure` 会复用已有匹配扫描根的本地服务，或在空闲端口起 Vite。**把打印出的 URL 回给用户。**
@@ -215,26 +224,26 @@ Studio 可调用路径：
 
 策略全文只从上述当前权威项目路径读取；文档不存在时不要借用工作台副本。
 
-## 6. Mac Studio vs Mac mini
+## 6. 唯一运行主机：Mac mini
 
-以下是 2026-08-27 的实测快照；每次执行仍必须按前述检查重新确认，不要把快照
-当成永久状态。
+以下是 2026-08-27 的现场验收；每次执行仍须按前述检查重新确认。
 
-| 能力 | Mac Studio | Mac mini |
-|------|------------|----------|
-| 建模（build123d / `scripts/step`） | **当前不可用**：缺 `build123d` / `OCP` | **当前不可用**：缺 `build123d` |
-| CAD Explorer（`dev:ensure`） | **当前不可用**：缺 `node_modules` | **当前不可用**：缺 `node_modules` |
-| DWG → PDF/SVG/CSV | **可发起**：调用 ProductSystem 助手 | **可执行**：QCAD 3.32.9 实际解析；当天 smoke 通过 |
-| 角色 | 编排、传入、收回 | QCAD 真正执行机 |
+| 能力 | Mac mini | Mac Studio |
+|------|----------|------------|
+| 建模与 STEP 检查 | **可执行**：build123d 0.11.1 / OCP 7.9.3.1.1 | 不执行；只下发任务、传入、取回 |
+| CAD Explorer | **可执行**：依赖已安装，147 项测试和正式构建通过 | 不执行；不安装 Explorer 依赖 |
+| DWG → PDF/SVG/CSV | **可执行**：QCAD 3.32.9 实际解析 | 只可调用 ProductSystem 远程助手 |
+| 角色 | 唯一 CAD 执行机 | 编排与文件中转 |
 
-任一机器的建模检查失败，都不要声称能建模；Explorer 依赖目录缺失，也不要声称
-能打开预览。
+同一份 Skill 可被 Studio 和 mini 看见，只代表两边知道怎样协作，不代表 Studio 也有
+CAD 运行环境。mini 的建模检查失败或 Explorer 依赖目录缺失时，仍须如实报告不可用。
 
 ## 7. Progressive references
 
 按需加载，不要一次全读：
 
 - `references/natural-language-specs.md` — 白话 → CAD brief
+- `references/mini-runtime.md` — mini 唯一运行主机、固定路径、恢复和现场验收
 - `references/step-generation.md` — STEP 生成与生成后检查
 - `references/inspection-and-validation.md` — refs / facts / planes / measure / mate / diff
 - `references/positioning.md` — 基准、关节、装配变换

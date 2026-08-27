@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+FADIOR_CAD_SITE_PACKAGES="/Users/Leo/.local/share/fadior-cad/python-3.12/lib/python3.12/site-packages"
+FADIOR_CAD_PYTHON="/opt/homebrew/opt/python@3.12/bin/python3.12"
+
+if [ ! -x "${FADIOR_CAD_PYTHON}" ]; then
+  echo "Mac mini Homebrew Python 3.12 is missing: ${FADIOR_CAD_PYTHON}" >&2
+  exit 1
+fi
+
+if [ ! -d "${FADIOR_CAD_SITE_PACKAGES}" ]; then
+  echo "Mac mini CAD Python packages are missing: ${FADIOR_CAD_SITE_PACKAGES}" >&2
+  exit 1
+fi
+
+PYTHONPATH="${FADIOR_CAD_SITE_PACKAGES}" exec "${FADIOR_CAD_PYTHON}" "$@"
