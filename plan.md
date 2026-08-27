@@ -33,10 +33,27 @@ entry point.
 - [x] Align runtime docs, prompts, install paths, and tests with the unified CAD
   entry point.
 - [x] Run structural and dependency-available test suites.
-- [ ] Publish the runtime branch and verify the remote readback.
-- [ ] Move the canonical checkout out of the Claude scan tree and relink both
+- [x] Publish the runtime branch and verify the remote readback.
+- [x] Move the canonical checkout out of the Claude scan tree and relink both
   agents.
-- [ ] Verify both agent startup inventories and all six runtime skill links.
+- [x] Verify both agent startup inventories and all six runtime skill links.
+
+## Verification snapshot
+
+- All six skill definitions pass the structural validator.
+- The dependency-free Explorer suite passes 112 tests; MoveIt2 passes 17 tests;
+  the inspect wrapper passes 4 tests.
+- The full Explorer suite reaches 121 of 126 passing tests. The remaining five
+  require the uninstalled `three` and `vite` packages; no dependency download
+  was authorized for this maintenance task.
+- Codex reports 171 skills, with the six runtime entries and both core quality
+  skills present exactly once.
+- Claude reports 99 user skills plus 2 plugin skills. Its plugin loader reports
+  4 enabled, 16 disabled, and zero plugin errors; no text-to-cad circular link
+  remains.
+- The expected Fadiorteam DWG bridge is absent from its authoritative checkout,
+  so the unified CAD skill now stops and reports that condition instead of
+  borrowing a temporary worktree copy.
 
 ## Constraints and risks
 
