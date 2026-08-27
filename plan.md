@@ -51,16 +51,24 @@ entry point.
 - Claude reports 99 user skills plus 2 plugin skills. Its plugin loader reports
   4 enabled, 16 disabled, and zero plugin errors; no text-to-cad circular link
   remains.
-- The expected Fadiorteam DWG bridge is absent from its authoritative checkout,
-  so the unified CAD skill now stops and reports that condition instead of
-  borrowing a temporary worktree copy.
+- The current DWG bridge is
+  `/Volumes/docker/FadiorProductSystem/source/quote/scripts/mini_qcad_dwg.sh`.
+  Mac Studio invokes it, but Mac mini QCAD performs the actual DWG conversion.
+  A 2026-08-27 live smoke converted the 759,424-byte Milan DWG into a valid
+  one-page, 3,036-byte PDF with QCAD 3.32.9 on mini.
+- The old `Fadiorteam/projects/tools/quote-tool/` path was removed during the
+  2026-08-13 ProductSystem migration and must not be used.
+- Modeling is not currently runnable on Studio or mini because the required
+  `build123d` / `OCP` environment is absent. Explorer source is present, but
+  its runtime dependencies are absent on both machines. Skill presence and
+  source synchronization are therefore not evidence that those two paths run.
 
 ## Constraints and risks
 
 - Do not install CAD or Explorer dependencies without separate approval if the
   download may exceed 30 MB.
-- The expected Fadiorteam DWG bridge is absent from its authoritative checkout;
-  the CAD skill must fail closed rather than borrowing a temporary worktree copy.
+- The CAD skill must use the ProductSystem DWG bridge and fail closed rather
+  than borrowing an obsolete Fadiorteam path or a temporary worktree copy.
 - Keep the fork's `main` on the latest upstream history.
 - Do not delete the legacy branch until a latest-upstream migration has passed
   equivalent CAD, Explorer, and robot-description acceptance checks.

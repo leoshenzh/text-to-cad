@@ -59,6 +59,16 @@ Explorer 已并入本 skill（`scripts/explorer`）。**不要再加载 `cad-exp
 
 ## 3. Path Modeling（建模）
 
+### 开工前检查
+
+```bash
+python -c 'import build123d, OCP; print("CAD_MODELING_READY")'
+```
+
+只有打印 `CAD_MODELING_READY` 才能开始建模。缺少 `build123d` 或 `OCP` 时，
+如实报告当前建模环境不可用；不要把 skill 文件存在误写成建模能力可用，也不要
+未经 Leo 批准下载可能超过 30 MB 的依赖。
+
 ### 工具
 
 在本 skill 目录下：
@@ -104,6 +114,16 @@ python scripts/dxf ...
 
 **支持：** `.step` `.stp` `.stl` `.3mf` `.dxf` `.urdf` `.srdf` `.sdf`
 输入必须是已存在的明确路径。
+
+### 开工前检查
+
+```bash
+test -d scripts/explorer/node_modules
+```
+
+目录存在后才执行下方启动命令。缺失时说明 Explorer 代码已安装、运行依赖未安装；
+不要把“代码已同步”写成“预览器可用”，也不要未经 Leo 批准执行可能超过 30 MB 的
+依赖下载。
 
 ### 启动预览
 
@@ -162,33 +182,53 @@ EXPLORER_MOVEIT2_WS_URL
 任何 `.dwg`（报价图、客户 CAD、BOM 附件）：**一律经 Mac mini 上的 QCAD 转换**。
 **禁止在 Mac Studio 本机跑 QCAD。**
 
-Studio 权威期望路径：
+### 谁真正执行
+
+- Mac Studio：调用助手、发送输入、接收输出。
+- Mac mini：运行 QCAD，真正读取并转换 DWG。
+- 因此，从 Studio 发起命令成功不代表 QCAD 在 Studio 上执行。
+
+### 当前权威入口
+
+Studio 可调用路径：
 
 ```bash
-/Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2pdf  INPUT.dwg [OUTPUT.pdf]
-/Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2svg  INPUT.dwg [OUTPUT.svg]
-/Users/Leo/.openclaw/workspace/projects/fadior/Fadiorteam/projects/tools/quote-tool/scripts/mini_qcad_dwg.sh dwg2csv  INPUT.dwg [OUTPUT.csv]
+/Volumes/docker/FadiorProductSystem/source/quote/scripts/mini_qcad_dwg.sh dwg2pdf  INPUT.dwg [OUTPUT.pdf]
+/Volumes/docker/FadiorProductSystem/source/quote/scripts/mini_qcad_dwg.sh dwg2svg  INPUT.dwg [OUTPUT.svg]
+/Volumes/docker/FadiorProductSystem/source/quote/scripts/mini_qcad_dwg.sh dwg2csv  INPUT.dwg [OUTPUT.csv]
 ```
 
-- 执行前先用 `test -x` 检查权威脚本；缺失就如实报告 DWG 桥接当前不可用
+完整策略文档：
+
+```text
+/Volumes/docker/FadiorProductSystem/source/quote/docs/dwg-mini-qcad.md
+```
+
+- 旧的 `Fadiorteam/projects/tools/quote-tool/` 已于 2026-08-13 迁走，禁止再引用
+- 执行前先用 `test -x` 检查当前权威脚本；缺失就如实报告 DWG 桥接当前不可用
 - **禁止**借用 `.worktrees/` 里的副本；工作台会被清理，不是运行时真源
 - 省略 `OUTPUT` → 当前目录同名 `.pdf` / `.svg` / `.csv`
 - 脚本 SCP 到 mini `/tmp/fadior-mini-qcad-<pid>/`，跑 QCAD，拉回结果并清理
 - SSH 主机：`FADIOR_MINI_QCAD_HOST`（默认 `mac-mini`）
 - QCAD Pro 试用启动约 15 秒属正常
+- 2026-08-27 实测：通过该入口把 759,424 字节的米兰 DWG 在 mini 上用 QCAD 3.32.9 转成 3,036 字节、1 页的有效 PDF
 
-策略全文只从同一权威项目路径读取；文档不存在时不要借用工作台副本。
+策略全文只从上述当前权威项目路径读取；文档不存在时不要借用工作台副本。
 
 ## 6. Mac Studio vs Mac mini
 
+以下是 2026-08-27 的实测快照；每次执行仍必须按前述检查重新确认，不要把快照
+当成永久状态。
+
 | 能力 | Mac Studio | Mac mini |
 |------|------------|----------|
-| 建模（build123d / `scripts/step`） | 是（默认） | **否**，直到为 `/opt/homebrew/opt/python@3.12/bin/python3.12` 装好 `build123d` |
-| CAD Explorer（`dev:ensure`） | 是 | 是（同步 skill 后；必要时在 `scripts/explorer` 里 `npm install`） |
-| DWG → PDF/SVG/CSV | 仅当权威桥接脚本通过 `test -x` | 由权威桥接脚本调用 mini QCAD |
-| Python | 项目解释器即可 | **必须** `/opt/homebrew/opt/python@3.12/bin/python3.12` |
+| 建模（build123d / `scripts/step`） | **当前不可用**：缺 `build123d` / `OCP` | **当前不可用**：缺 `build123d` |
+| CAD Explorer（`dev:ensure`） | **当前不可用**：缺 `node_modules` | **当前不可用**：缺 `node_modules` |
+| DWG → PDF/SVG/CSV | **可发起**：调用 ProductSystem 助手 | **可执行**：QCAD 3.32.9 实际解析；当天 smoke 通过 |
+| 角色 | 编排、传入、收回 | QCAD 真正执行机 |
 
-mini 上若 `import build123d` 失败，不要声称能建模。
+任一机器的建模检查失败，都不要声称能建模；Explorer 依赖目录缺失，也不要声称
+能打开预览。
 
 ## 7. Progressive references
 
